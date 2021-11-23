@@ -29,7 +29,7 @@ resource "github_branch" "sonar_branch" {
   #count      = local.action_has_changes ? 0 : 1
   repository = var.repo
   branch     = var.sonar_branch
-
+  source_branch = var.default_branch
   lifecycle {
     ignore_changes = all
   }
