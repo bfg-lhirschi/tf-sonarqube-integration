@@ -16,7 +16,7 @@ variable "sonar_project" {
 
 variable "default_branch" {
   description = "The default repo branch to merge changes into"
-  default = "main"
+  default = ""
 }
 
 variable "sonar_branch" {
