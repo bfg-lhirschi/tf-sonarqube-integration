@@ -1,6 +1,6 @@
 # Get a list of BFG PHP repos and pass that to get a list of repo objects.
 data "github_repositories" "php_repos" {
-  query = "org:bigfishgames bf-magento-ecommerce"
+  query = "org:bigfishgames magento archived:false"
 }
 
 data "github_repository" "php_repos" {
