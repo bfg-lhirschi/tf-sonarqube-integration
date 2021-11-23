@@ -13,6 +13,12 @@ variable "sonar_project" {
   description = "The Sonarqube ent. project to associate the scan with"
   default     = "BigfishgamesOrg-SonarQube-Staging"
 }
+
+variable "default_branch" {
+  description = "The default repo branch to merge changes into"
+  default = "main"
+}
+
 variable "sonar_branch" {
   description = "Github branch for commits and PR"
   default     = "sonarqube-implementation-poc"

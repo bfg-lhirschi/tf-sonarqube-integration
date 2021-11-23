@@ -1,6 +1,6 @@
 # Get a list of BFG PHP repos and pass that to get a list of repo objects.
 data "github_repositories" "php_repos" {
-  query = "org:bigfishgames magento archived:false"
+  query = "org:bigfishgames bf-magento-ecommerce archived:false"
 }
 
 data "github_repository" "php_repos" {
@@ -18,6 +18,7 @@ module "php_repos" {
   for_each    = { for php_repos in local.php_repos : php_repos => php_repos }
   repo        = each.value
   action_file = "sonar_generic_action.yml"
+  default_branch = data.github_repository.php_repos["bf-magento-ecommerce"].default_branch
 }
 
 # Outputs of repos passed to module

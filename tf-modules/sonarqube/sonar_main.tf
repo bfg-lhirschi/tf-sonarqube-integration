@@ -68,7 +68,7 @@ locals {
 resource "github_repository_pull_request" "sonar_pr" {
   #count           = local.action_has_changes ? 0 : 1
   base_repository = var.repo
-  base_ref        = "main" # Need dep to determine default branch
+  base_ref        = var.default_branch 
   head_ref        = github_branch.sonar_branch.branch
   title           = "Sonarqube Static Code Analysis Implementation"
   body            = "PR message to teams here"
