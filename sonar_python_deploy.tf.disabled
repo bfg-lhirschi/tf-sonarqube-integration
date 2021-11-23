@@ -1,0 +1,40 @@
+# Variables
+variable "repos" {
+  description = "repos to apply on Sonarqube"
+  default     = ""
+}
+#----------
+
+# Get a list of BFG python repos and pass that to get a list of repo objects.
+data "github_repositories" "python_repos" {
+  query = "org:bigfishgames hello-cloud-run-python"
+}
+
+data "github_repository" "python_repos" {
+  for_each  = toset(local.python_repos)
+  full_name = "bigfishgames/${each.value}"
+}
+
+locals {
+  python_repos = data.github_repositories.python_repos.names
+}
+
+module "python_repos" {
+  source      = "./tf-modules/sonarqube"
+  for_each    = { for python_repos in local.python_repos : python_repos => python_repos }
+  repo        = each.value
+  action_file = "sonar_generic_action.yml"
+}
+
+# Outputs of repos passed to module
+output "python_repos" {
+  description = "List of repos that use python"
+  value       = data.github_repositories.python_repos.full_names
+}
+
+/*
+output "python_repo_ids" {
+  description = "List of repo maps"
+  value       = local.python_repo_ids
+}
+*/
