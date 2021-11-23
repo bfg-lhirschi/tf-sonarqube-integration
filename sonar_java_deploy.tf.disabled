@@ -1,0 +1,60 @@
+# Providers
+terraform {
+  required_version = "0.13.5"
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "bfg"
+
+    workspaces {
+      name = "phoenix_sonarqube_poc"
+    }
+  }
+}
+
+# To set access create an env var and PAT in the TFC workspace called 'GITHUB_TOKEN'
+provider "github" {
+  owner   = "bigfishgames"
+  version = "~> 4.17.0"
+}
+
+# Variables
+variable "repos" {
+  description = "repos to apply on Sonarqube"
+  default     = ""
+}
+#----------
+
+# Get a list of BFG Java repos and pass that to get a list of repo objects.
+data "github_repositories" "java_repos" {
+  query = "org:bigfishgames language:Java phoenix"
+}
+
+data "github_repository" "java_repos" {
+  for_each  = toset(local.java_repos)
+  full_name = each.value
+}
+
+locals {
+  java_repos    = data.github_repositories.java_repos.full_names
+  java_repo_ids = data.github_repository.java_repos[*]
+}
+
+module "java_repos" {
+  source      = "./tf-modules/sonarqube"
+  for_each    = { for java_repos in local.java_repos : java_repos => java_repos }
+  repo        = each.value
+  action_file = "sonar_java_action.yml"
+}
+
+/*
+# Outputs of repos passed to module
+output "java_repos" {
+  description = "List of repos that use Java"
+  value       = data.github_repositories.java_repos.full_names
+}
+
+output "java_repo_ids" {
+  description = "List of repo maps"
+  value       = local.java_repo_ids
+}
+*/
