@@ -13,6 +13,7 @@ locals {
   php_repo_details = data.github_repository.php_repos[*]
 }
 
+/*
 module "php_repos" {
   source      = "./tf-modules/sonarqube"
   for_each    = { for php_repos in local.php_repos : php_repos => php_repos }
@@ -20,6 +21,7 @@ module "php_repos" {
   action_file = "sonar_generic_action.yml"
   default_branch = data.github_repository.php_repos["bf-magento-ecommerce"].default_branch
 }
+*/
 
 # Outputs of repos passed to module
 output "php_repos" {
