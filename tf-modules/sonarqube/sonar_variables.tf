@@ -1,12 +1,12 @@
 # Variables
 variable "sonar_token" {
   description = "Protected TFC variable"
-  default     = "local-test-value"
+  default     = ""
 }
 
 variable "sonar_host_url" {
   description = "Protected TFC variable"
-  default     = "local-test-value"
+  default     = ""
 }
 
 variable "sonar_project" {
