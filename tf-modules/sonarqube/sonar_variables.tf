@@ -1,13 +1,8 @@
-# Variables
-variable "sonar_token" {
-  description = "Protected TFC variable"
-  default     = ""
-}
+# Terraform Cloud Workspace Variables
+# https://app.terraform.io/app/bfg/workspaces/gis_sonarqube_github/variables 
+variable "sonar_token" {}
 
-variable "sonar_host_url" {
-  description = "Protected TFC variable"
-  default     = ""
-}
+variable "sonar_host_url" {}
 
 variable "sonar_project" {
   description = "The Sonarqube ent. project to associate the scan with"
