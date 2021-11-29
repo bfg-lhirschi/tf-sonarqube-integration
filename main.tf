@@ -18,5 +18,13 @@ terraform {
 
 # To set access create an env var and PAT in the TFC workspace called 'GITHUB_TOKEN'
 provider "github" {
-  owner   = "bigfishgames"
+  owner = "bigfishgames"
+}
+
+variable "sonar_token" {
+  sensitive = true
+}
+
+variable "sonar_host_url" {
+  sensitive = true
 }

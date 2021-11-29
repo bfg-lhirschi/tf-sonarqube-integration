@@ -1,14 +1,6 @@
-variable "sonar_token" {
-  sensitive = true
-}
-
-variable "sonar_host_url" {
-  sensitive = true
-}
-
 # Get a list of BFG PHP repos and pass that to get a list of repo objects.
 data "github_repositories" "php_repos" {
-  query = "org:bigfishgames magento archived:false"
+  query = "org:bigfishgames magento language:PHP language:HTML archived:false"
 }
 
 data "github_repository" "php_repos" {
@@ -22,10 +14,10 @@ locals {
 }
 
 module "php_repos" {
-  source      = "./tf-modules/sonarqube"
-  for_each    = { for php_repos in local.php_repos : php_repos => php_repos }
-  repo        = each.value
-  action_file = "sonar_generic_action.yml"
+  source         = "./tf-modules/sonarqube"
+  for_each       = { for php_repos in local.php_repos : php_repos => php_repos }
+  repo           = each.value
+  action_file    = "sonar_generic_action.yml"
   default_branch = data.github_repository.php_repos[each.value].default_branch
 }
 
@@ -35,7 +27,9 @@ output "php_repos" {
   value       = data.github_repositories.php_repos.full_names
 }
 
+/*
 output "php_repo_details" {
   description = "A list of objects containing details about the repos"
   value       = data.github_repository.php_repos[*]
 }
+*/
