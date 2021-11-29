@@ -40,7 +40,7 @@ resource "github_repository_file" "sonar_properties" {
   branch     = github_branch.sonar_branch.branch
   file       = "sonar-project.properties"
   content = templatefile("${path.module}/sonar-properties.template", {
-    project_name = var.sonar_project, project_key = var.repo
+    project_name = var.repo, project_key = var.repo
   })
   commit_message      = "Create sonarqube.properties file, managed by Terraform"
   commit_author       = "BFG-TF"
