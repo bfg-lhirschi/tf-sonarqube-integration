@@ -1,8 +1,12 @@
 # Terraform Cloud Workspace Variables
 # https://app.terraform.io/app/bfg/workspaces/gis_sonarqube_github/variables 
-variable "sonar_token" {}
+variable "sonar_token" {
+  default = ""
+}
 
-variable "sonar_host_url" {}
+variable "sonar_host_url" {
+  default = ""
+}
 
 variable "sonar_project" {
   description = "The Sonarqube ent. project to associate the scan with"
