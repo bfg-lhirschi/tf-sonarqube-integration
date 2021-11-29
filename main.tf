@@ -11,7 +11,6 @@ terraform {
   }
   required_providers {
     github = {
-      #source  = "mycorp/mycloud"
       version = "~>4.17.0"
     }
   }
