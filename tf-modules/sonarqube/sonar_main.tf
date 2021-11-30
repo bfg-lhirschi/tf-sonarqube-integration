@@ -73,6 +73,7 @@ resource "github_repository_pull_request" "sonar_pr" {
   title           = "Sonarqube Static Code Analysis Implementation"
   body            = "PR message to teams here"
 
+  # The following files must be created before the PR is created
   depends_on = [
     github_repository_file.sonar_properties,
     github_repository_file.sonar_action,

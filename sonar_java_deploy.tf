@@ -13,6 +13,7 @@ locals {
   java_repo_ids = data.github_repository.java_repos[*]
 }
 
+#---------
 module "java_repos" {
   source         = "./tf-modules/sonarqube"
   for_each       = { for java_repos in local.java_repos : java_repos => java_repos }

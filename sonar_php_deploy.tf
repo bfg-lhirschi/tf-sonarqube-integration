@@ -13,6 +13,7 @@ locals {
   php_repo_details = data.github_repository.php_repos[*]
 }
 
+#----------
 module "php_repos" {
   source         = "./tf-modules/sonarqube"
   for_each       = { for php_repos in local.php_repos : php_repos => php_repos }
