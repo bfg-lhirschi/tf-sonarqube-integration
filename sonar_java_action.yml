@@ -22,7 +22,7 @@ jobs:
 
       - name: Check file existence
         id: check_files
-        uses: andstor/file-existence-action@87d74d4 
+        uses: andstor/file-existence-action@87d74d4732ddb824259d80c8a508c0124bf1c673
         with:
           files: "pom.xml"
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: Check file existence
         id: check_files
-        uses: andstor/file-existence-action@87d74d4 
+        uses: andstor/file-existence-action@87d74d4732ddb824259d80c8a508c0124bf1c673
         with:
           files: "build.gradle"
 
