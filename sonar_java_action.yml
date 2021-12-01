@@ -5,7 +5,7 @@ This new action combines the Maven and Gradel actions and selects the proper one
 #   id "org.sonarqube" version "3.3"
 # }
 
-name: Sonarqube Deployment
+name: Sonarqube Java Deployment
 on:
   push:
     branches:

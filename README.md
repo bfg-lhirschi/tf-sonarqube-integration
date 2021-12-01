@@ -15,7 +15,7 @@ https://app.terraform.io/app/bfg/workspaces/gis_sonarqube_github
 When a new repo is added the following resources will be created when Terraform is applied if it matches a Github query in the configuration:  
 - Github Secret containing the token for accessing Sonarqube
 - Github Secret containing the URL of the Sonarqube instance
-- A branch which will contain commits for the following new files:
+- A branch containing commits for the following new files:
 	- Github Action file for the main language in the repo
 	- sonarqube properties file for configuring the Github Action
 - A pull request for the created branch that the owning team will need to merge into the default branch
