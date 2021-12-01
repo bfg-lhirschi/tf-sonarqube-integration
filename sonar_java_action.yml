@@ -1,4 +1,4 @@
-This new action combines the Maven and Gradel actions and selects the proper one based on the presence of the repos `pom.xml` or the `gradel.properties` files.
+# This new action combines the Maven and Gradel actions and selects the proper one based on the presence of the repos `pom.xml` or the `gradel.properties` files.
 
 # The following also needs to be added to the repo's build.gradle file-
 # plugins {
@@ -42,7 +42,7 @@ jobs:
         id: check_files
         uses: andstor/file-existence-action@87d74d4 
         with:
-          files: "gradle.properties"
+          files: "build.gradle"
 
       - name: File exists
         if: steps.check_files.outputs.files_exists == 'true'
@@ -51,6 +51,7 @@ jobs:
 
   gradle-build:
     name: Sonar Gradle Build
+    needs: gradle_file_existence
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -81,6 +82,7 @@ jobs:
 
   maven-build:
     name: Sonar Maven Build
+    needs: maven_file_existence
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
