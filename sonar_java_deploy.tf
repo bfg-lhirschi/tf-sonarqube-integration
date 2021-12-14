@@ -20,7 +20,6 @@ module "java_repos" {
   repo           = each.value
   action_file    = "sonar_java_action.yml"
   default_branch = data.github_repository.java_repos[each.value].default_branch
-  sonar_token    = var.sonar_token
 }
 
 # Outputs of repos passed to module

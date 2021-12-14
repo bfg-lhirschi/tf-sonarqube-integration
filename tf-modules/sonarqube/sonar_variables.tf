@@ -1,13 +1,13 @@
 # Terraform Cloud Workspace Variables
 # https://app.terraform.io/app/bfg/workspaces/gis_sonarqube_github/variables 
-
 variable "sonar_token" {
   description = "This variable overwritten by TFC workspace"
+  default = ""
 }
 
 variable "sonar_host_url" {
   description = "This variable overwritten by TFC workspace"
-  default = "https://quality-staging.aristocrat.com/"
+  default = ""
 }
 
 variable "default_branch" {
