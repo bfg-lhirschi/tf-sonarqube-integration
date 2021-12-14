@@ -17,7 +17,7 @@ jobs:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
     - name: SonarQube Scan Generic
-      uses: sonarsource/sonarqube-scan-action@master
+      uses: sonarsource/sonarqube-scan-action@069e3332cbefb8659c02d77b21a04719d3ef7c9b
       env:
         SONAR_TOKEN: ${sonar_token}
         SONAR_HOST_URL: ${sonar_host_url}
