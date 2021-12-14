@@ -1,14 +1,5 @@
 # Terraform Cloud Workspace Variables
 # https://app.terraform.io/app/bfg/workspaces/gis_sonarqube_github/variables 
-variable "sonar_token" {
-  description = "This variable overwritten by TFC workspace"
-  default = ""
-}
-
-variable "sonar_host_url" {
-  description = "This variable overwritten by TFC workspace"
-  default = ""
-}
 
 variable "default_branch" {
   description = "The default repo branch to merge changes into"
@@ -28,4 +19,14 @@ variable "repo" {
 variable "action_file" {
   description = "The Github action to deploy for use with Sonarqube"
   default     = "sonar_generic.yml"
+}
+
+variable "sonar_token" {
+  description = "The Sonarqube token to access the BFG enterprise instance"
+  default     = "$${{ secrets.SONAR_TOKEN }}"
+}
+
+variable "sonar_host_url" {
+  description = "The Sonarqube URL of the BFG enterprise instance"
+  default     = "$${{ secrets.SONAR_HOST_URL }}"
 }

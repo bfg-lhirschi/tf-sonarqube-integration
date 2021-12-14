@@ -3,7 +3,7 @@ on:
   # a pull request. 
   push:
     branches:
-      - main
+      ${default_branch} 
   pull_request:
       types: [opened, synchronize, reopened]
 
@@ -12,12 +12,12 @@ jobs:
   sonarqube:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
       with:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
     - name: SonarQube Scan Generic
       uses: sonarsource/sonarqube-scan-action@master
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_TOKEN: ${sonar_token}
+        SONAR_HOST_URL: ${sonar_host_url}
