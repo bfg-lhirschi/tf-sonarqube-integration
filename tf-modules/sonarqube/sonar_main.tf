@@ -53,7 +53,11 @@ resource "github_repository_file" "sonar_action" {
   branch              = github_branch.sonar_branch.branch
   file                = ".github/workflows/${var.action_file}"
   content = templatefile(var.action_file, {
-    default_branch = var.default_branch, sonar_token = var.sonar_token, sonar_host_url = var.sonar_host_url
+    default_branch = var.default_branch,
+    sonar_token = var.sonar_token,
+    sonar_host_url = var.sonar_host_url,
+    github_runner_os = var.github_runner_os,
+    github_hash_files = var.github_hash_files,
   })
   #content             = file("./${var.action_file}")
   commit_message      = "Create sonarqube GH Action file, managed by Terraform"
