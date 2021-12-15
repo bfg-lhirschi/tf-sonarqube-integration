@@ -22,15 +22,9 @@ module "php_repos" {
   default_branch = data.github_repository.php_repos[each.value].default_branch
 }
 
-# Outputs of repos passed to module
+#----------
+# Output lists of repos passed to module
 output "php_repos" {
   description = "List of repos that use php"
   value       = data.github_repositories.php_repos.full_names
 }
-
-/*
-output "php_repo_details" {
-  description = "A list of objects containing details about the repos"
-  value       = data.github_repository.php_repos[*]
-}
-*/

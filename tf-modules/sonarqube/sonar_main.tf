@@ -26,7 +26,6 @@ resource "github_actions_secret" "sonar_host_url" {
 #----------
 # Create, commit and open PR to merge on default branch
 resource "github_branch" "sonar_branch" {
-  #count      = local.action_has_changes ? 0 : 1
   repository = var.repo
   branch     = var.sonar_branch
   source_branch = var.default_branch
@@ -40,7 +39,8 @@ resource "github_repository_file" "sonar_properties" {
   branch     = github_branch.sonar_branch.branch
   file       = "sonar-project.properties"
   content = templatefile("${path.module}/sonar-properties.template", {
-    project_name = var.repo, project_key = var.repo
+    project_name = var.repo,
+    project_key = var.repo,
   })
   commit_message      = "Create sonarqube.properties file, managed by Terraform"
   commit_author       = "BFG-TF"
@@ -53,13 +53,15 @@ resource "github_repository_file" "sonar_action" {
   branch              = github_branch.sonar_branch.branch
   file                = ".github/workflows/${var.action_file}"
   content = templatefile(var.action_file, {
-    default_branch = var.default_branch,
-    sonar_token = var.sonar_token,
-    sonar_host_url = var.sonar_host_url,
-    github_runner_os = var.github_runner_os,
-    github_hash_files = var.github_hash_files,
+    default_branch        = var.default_branch,
+    sonar_token           = var.sonar_token,
+    sonar_host_url        = var.sonar_host_url,
+    github_runner_os      = var.github_runner_os,
+    github_hash_files     = var.github_hash_files,
+    java_build_tool       = local.java_build_tool
+    java_build_cache_path = local.java_build_cache_path
+    java_build_run        = local.java_build_run
   })
-  #content             = file("./${var.action_file}")
   commit_message      = "Create sonarqube GH Action file, managed by Terraform"
   commit_author       = "bfg-tf"
   commit_email        = "bfg-tf@bigfishgames.com"
@@ -68,12 +70,12 @@ resource "github_repository_file" "sonar_action" {
 
 # There is currently a cyclical dep. problem when determining if the files have changes
 locals {
-  #properties_has_changes = base64sha256(github_repository_file.sonar_properties.content) != filebase64sha256("./.github/workflows/sonar-properties.template") ? true : false
-  #action_has_changes     = base64sha256(github_repository_file.sonar_action.content) != filebase64sha256("./${var.action_file}") ? true : false
+  java_build_tool = lower(var.java_build_tool)
+  java_build_cache_path = local.java_build_tool == "gradle" ? "~/.gradle/caches" : (local.java_build_tool == "maven" ? "~/.m2" : null)
+  java_build_run   = local.java_build_tool == "gradle" ? "./gradlew build sonarqube --info" : (local.java_build_tool == "maven" ? "mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar" : null) 
 }
 
 resource "github_repository_pull_request" "sonar_pr" {
-  #count           = local.action_has_changes ? 0 : 1
   base_repository = var.repo
   base_ref        = var.default_branch 
   head_ref        = github_branch.sonar_branch.branch

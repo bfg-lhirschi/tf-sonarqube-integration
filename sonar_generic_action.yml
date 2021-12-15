@@ -1,6 +1,5 @@
 on:
-  # Trigger analysis when pushing in master or pull requests, and when creating
-  # a pull request. 
+  # Trigger analysis when pushing to the default branch or when creating pull requests. 
   push:
     branches:
       ${default_branch} 

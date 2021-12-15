@@ -40,5 +40,10 @@ variable "github_runner_os" {
 
 variable "github_hash_files" {
   description = "Github files that the action will hash"
-  default     = "$${{ hashFiles('**/*.gradle') }}"
+  default     = ""
+}
+
+variable "java_build_tool" {
+  description = "The build tool used to generate Java artifacts"
+  default = ""
 }

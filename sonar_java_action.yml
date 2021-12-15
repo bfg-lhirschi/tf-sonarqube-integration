@@ -1,112 +1,37 @@
-# This new action combines the Maven and Gradel actions and selects the proper one based on the presence of the repos `pom.xml` or the `gradel.properties` files.
-
-# The following also needs to be added to the repo's build.gradle file-
-# plugins {
-#   id "org.sonarqube" version "3.3"
-# }
-
-name: Sonarqube Deployment
+name: SonarQube
 on:
   push:
     branches:
-      - master # or the name of your main branch
+      - ${default_branch} 
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
-  maven_file_existence:
-    name: Check if pom.xml file exists
+  build:
+    name: SonarScanner for ${title(java_build_tool)}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v1
-
-      - name: Check file existence
-        id: check_files
-        uses: andstor/file-existence-action@87d74d4732ddb824259d80c8a508c0124bf1c673
-        with:
-          files: "pom.xml"
-
-      - name: File exists
-        if: steps.check_files.outputs.files_exists == 'true'
-        # Only runs if all of the files exists
-        run: echo pom.xml file exists!
-
-  gradle_file_existence:
-    name: Check if gradle.properties file exists
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v1
-
-      - name: Check file existence
-        id: check_files
-        uses: andstor/file-existence-action@87d74d4732ddb824259d80c8a508c0124bf1c673
-        with:
-          files: "build.gradle"
-
-      - name: File exists
-        if: steps.check_files.outputs.files_exists == 'true'
-        # Only runs if all of the files exists
-        run: echo gradle.properties file exists!
-
-  gradle-build:
-    name: Sonar Gradle Build
-    needs: gradle_file_existence
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up JDK 11
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@5f00602cd1b2819185d88dc7a1b1985f598c6705
         with:
           java-version: 11
       - name: Cache SonarQube packages
-        uses: actions/cache@v1
+        uses: actions/cache@937d24475381cd9c75ae6db12cb4e79714b926ed
         with:
           path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache Gradle packages
-        uses: actions/cache@v1
+          key: ${github_runner_os}-sonar
+          restore-keys: ${github_runner_os}-sonar
+      - name: Cache ${java_build_tool} packages
+        uses: actions/cache@937d24475381cd9c75ae6db12cb4e79714b926ed
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+          path: ${java_build_cache_path}
+          key: ${github_runner_os}-${java_build_tool}-${github_hash_files}
+          restore-keys: ${github_runner_os}-${java_build_tool}
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: ./gradlew build sonarqube --info 
-
-  maven-build:
-    name: Sonar Maven Build
-    needs: maven_file_existence
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Cache SonarQube packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache Maven packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Build and analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          #GITHUB_TOKEN: $${secrets.GITHUB_TOKEN}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${sonar_token}
+          SONAR_HOST_URL: ${sonar_host_url}
+        run: ${java_build_run}
