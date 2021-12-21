@@ -31,7 +31,7 @@ jobs:
           restore-keys: ${github_runner_os}-${java_build_tool}
       - name: Build and analyze
         env:
-          #GITHUB_TOKEN: $${secrets.GITHUB_TOKEN}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${github_token}  # Needed to get PR information, if any
           SONAR_TOKEN: ${sonar_token}
           SONAR_HOST_URL: ${sonar_host_url}
         run: ${java_build_run}
