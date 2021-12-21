@@ -35,7 +35,7 @@ variable "sonar_host_url" {
 
 variable "github_runner_os" {
   description = "The OS of the Github Runner the action is running on" 
-  default     = "$${{ os.runner }}"
+  default     = "$${{ runner.os }}"
 }
 
 variable "github_hash_files" {
