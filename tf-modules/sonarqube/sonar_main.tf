@@ -67,6 +67,7 @@ resource "github_repository_file" "sonar_action" {
     java_build_tool       = local.java_build_tool
     java_build_cache_path = local.java_build_cache_path
     java_build_run        = local.java_build_run
+    github_token          = "$${{ secrets.GITHUB_TOKEN }}"
   })
   commit_message      = "Create sonarqube GH Action file, managed by Terraform"
   commit_author       = "bfg-tf"
