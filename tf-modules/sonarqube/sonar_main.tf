@@ -35,6 +35,7 @@ resource "github_branch" "sonar_branch" {
 }
 
 resource "github_repository_file" "sonar_properties" {
+  #count      = github_repository_pull_request.sonar_pr.state == "merged" ? 0 : 1
   repository = var.repo
   branch     = github_branch.sonar_branch.branch
   file       = "sonar-project.properties"
@@ -46,9 +47,14 @@ resource "github_repository_file" "sonar_properties" {
   commit_author       = "BFG-TF"
   commit_email        = "bfg-tf@bigfishgames.com"
   overwrite_on_create = true
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "github_repository_file" "sonar_action" {
+  #count      = github_repository_pull_request.sonar_pr.state == "merged" ? 0 : 1
   repository          = var.repo
   branch              = github_branch.sonar_branch.branch
   file                = ".github/workflows/${var.action_file}"
@@ -66,6 +72,10 @@ resource "github_repository_file" "sonar_action" {
   commit_author       = "bfg-tf"
   commit_email        = "bfg-tf@bigfishgames.com"
   overwrite_on_create = true
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 # There is currently a cyclical dep. problem when determining if the files have changes
@@ -89,6 +99,9 @@ resource "github_repository_pull_request" "sonar_pr" {
   ]
 
   lifecycle {
-    ignore_changes = all
+    ignore_changes = [
+    updated_at,
+    state,
+    ] #all
   }
 }
