@@ -73,9 +73,9 @@ resource "github_repository_file" "sonar_action" {
   commit_email        = "bfg-tf@bigfishgames.com"
   overwrite_on_create = true
 
-  lifecycle {
-    ignore_changes = all
-  }
+#  lifecycle {
+#    ignore_changes = all
+#  }
 }
 
 # There is currently a cyclical dep. problem when determining if the files have changes
