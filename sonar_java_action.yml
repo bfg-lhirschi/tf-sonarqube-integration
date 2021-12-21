@@ -17,6 +17,7 @@ jobs:
         uses: actions/setup-java@5f00602cd1b2819185d88dc7a1b1985f598c6705
         with:
           java-version: 11
+          distribution: adopt
       - name: Cache SonarQube packages
         uses: actions/cache@937d24475381cd9c75ae6db12cb4e79714b926ed
         with:
