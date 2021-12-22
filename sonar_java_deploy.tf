@@ -36,7 +36,7 @@ module "gradle_repos" {
   default_branch  = data.github_repository.gradle_repos[each.value].default_branch
 }
 
-/* #Functional but not in the current scope
+#Functional but not in the current scope
 module "maven_repos" {
   source          = "./tf-modules/sonarqube"
   for_each        = { for maven_repos in local.maven_repos : maven_repos => maven_repos }
@@ -45,7 +45,6 @@ module "maven_repos" {
   action_file     = "sonar_java_action.yml"
   default_branch  = data.github_repository.maven_repos[each.value].default_branch
 }
-*/
 
 #---------
 # Output lists of repos passed to module
