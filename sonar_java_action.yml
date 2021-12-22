@@ -30,6 +30,8 @@ jobs:
           path: ${java_build_cache_path}
           key: ${github_runner_os}-${java_build_tool}-${github_hash_files}
           restore-keys: ${github_runner_os}-${java_build_tool}
+      - name: Update needed file permissions
+        run: ${java_permissions}
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${github_token}  # Needed to get PR information, if any

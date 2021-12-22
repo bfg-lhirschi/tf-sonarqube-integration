@@ -1,10 +1,10 @@
 # Write Github secrets to Java repos
 /* NOT FUNCTIONAL
 resource "github_actions_organization_secret" "sonar_token" {
-  secret_name             = "SONAR_TOKEN"
-  visibility              = "selected"
   plaintext_value         = var.sonar_token #This value is a protected TFC var
+  secret_name             = "SONAR_TOKEN"
   selected_repository_ids = local.java_repo_ids[*].*.repo_id
+  visibility              = "selected"
 }
 */
 
@@ -26,16 +26,17 @@ resource "github_actions_secret" "sonar_host_url" {
 #----------
 # Create, commit and open PR to merge on default branch
 resource "github_branch" "sonar_branch" {
-  repository = var.repo
   branch     = var.sonar_branch
+  repository = var.repo
   source_branch = var.default_branch
   lifecycle {
-    ignore_changes = all
+    ignore_changes = [
+    etag,
+    ]
   }
 }
 
 resource "github_repository_file" "sonar_properties" {
-  #count      = github_repository_pull_request.sonar_pr.state == "merged" ? 0 : 1
   repository = var.repo
   branch     = github_branch.sonar_branch.branch
   file       = "sonar-project.properties"
@@ -54,20 +55,20 @@ resource "github_repository_file" "sonar_properties" {
 }
 
 resource "github_repository_file" "sonar_action" {
-  #count      = github_repository_pull_request.sonar_pr.state == "merged" ? 0 : 1
   repository          = var.repo
   branch              = github_branch.sonar_branch.branch
   file                = ".github/workflows/${var.action_file}"
   content = templatefile(var.action_file, {
     default_branch        = var.default_branch,
-    sonar_token           = "$${{ secrets.SONAR_TOKEN }}"
-    sonar_host_url        = "$${{ secrets.SONAR_HOST_URL }}"
-    github_runner_os      = var.github_runner_os,
     github_hash_files     = var.github_hash_files,
-    java_build_tool       = local.java_build_tool
+    github_runner_os      = var.github_runner_os,
+    github_token          = "$${{ secrets.GITHUB_TOKEN }}"
     java_build_cache_path = local.java_build_cache_path
     java_build_run        = local.java_build_run
-    github_token          = "$${{ secrets.GITHUB_TOKEN }}"
+    java_build_tool       = local.java_build_tool
+    java_permissions      = local.java_permissions
+    sonar_host_url        = "$${{ secrets.SONAR_HOST_URL }}"
+    sonar_token           = "$${{ secrets.SONAR_TOKEN }}"
   })
   commit_message      = "Create sonarqube GH Action file, managed by Terraform"
   commit_author       = "bfg-tf"
@@ -83,7 +84,8 @@ resource "github_repository_file" "sonar_action" {
 locals {
   java_build_tool = lower(var.java_build_tool)
   java_build_cache_path = local.java_build_tool == "gradle" ? "~/.gradle/caches" : (local.java_build_tool == "maven" ? "~/.m2" : null)
-  java_build_run   = local.java_build_tool == "gradle" ? "git update-index --chmod=+x gradlew && ./gradlew build sonarqube -Dsonar.host.url=$${{ secrets.SONAR_HOST_URL }} -Dsonar.login=$${{ secrets.SONAR_TOKEN }}" : (local.java_build_tool == "maven" ? "mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=$${{ secrets.SONAR_HOST_URL }} -Dsonar.login=$${{ secrets.SONAR_TOKEN }}" : null)
+  java_build_run   = local.java_build_tool == "gradle" ? "./gradlew build sonarqube -Dsonar.host.url=$${{ secrets.SONAR_HOST_URL }} -Dsonar.login=$${{ secrets.SONAR_TOKEN }}" : (local.java_build_tool == "maven" ? "mvn -B verify sonar:sonar -Dsonar.projectKey=redemption-service -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Denv.SHA=$${GITHUB_SHA::7} -Denv.TO=$NONPROD_CONTAINER_IMAGE" : null)
+  java_permissions = local.java_build_tool == "gradle" ? "chmod +x ./gradlew" : "echo No Maven file permission changes needed" 
 }
 
 resource "github_repository_pull_request" "sonar_pr" {
@@ -101,8 +103,9 @@ resource "github_repository_pull_request" "sonar_pr" {
 
   lifecycle {
     ignore_changes = [
-    updated_at,
+    head_sha,
     state,
-    ] #all
+    updated_at,
+    ]
   }
 }
