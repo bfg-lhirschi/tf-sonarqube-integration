@@ -25,12 +25,12 @@ variable "action_file" {
 # To overcome using the action file as a template the Github interpolation needs to be set by Terraform.
 variable "sonar_token" {
   description = "The Sonarqube token to access the BFG enterprise instance"
-  default     = "$${{ secrets.SONAR_TOKEN }}"
+  #default     = "$${{ secrets.SONAR_TOKEN }}"
 }
 
 variable "sonar_host_url" {
   description = "The Sonarqube URL of the BFG enterprise instance"
-  default     = "$${{ secrets.SONAR_HOST_URL }}"
+  default     = "https://quality-staging.aristocrat.com/" 
 }
 
 variable "github_runner_os" {

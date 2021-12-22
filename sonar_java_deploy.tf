@@ -34,6 +34,7 @@ module "gradle_repos" {
   java_build_tool = "gradle"
   action_file     = "sonar_java_action.yml"
   default_branch  = data.github_repository.gradle_repos[each.value].default_branch
+  sonar_token     = var.sonar_token
 }
 
 #Functional but not in the current scope
@@ -44,6 +45,7 @@ module "maven_repos" {
   java_build_tool = "maven"
   action_file     = "sonar_java_action.yml"
   default_branch  = data.github_repository.maven_repos[each.value].default_branch
+  sonar_token     = var.sonar_token
 }
 
 #---------
