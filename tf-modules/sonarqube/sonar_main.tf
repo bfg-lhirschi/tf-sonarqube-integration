@@ -1,3 +1,26 @@
+variable "github_query" {
+  description = "The Github query that returns a list of repos"
+}
+
+data "github_repositories" "sonar_repos" {
+  query = var.github_query
+}
+
+data "github_repository" "sonar_repos" {
+  for_each  = toset(local.sonar_repos)
+  full_name = "bigfishgames/${each.value}"
+}
+
+locals {
+  sonar_repos    = data.github_repositories.sonar_repos.names
+  sonar_repo_ids = data.github_repository.sonar_repos[*]
+  java_build_tool = lower(var.java_build_tool)
+  java_build_cache_path = local.java_build_tool == "gradle" ? "~/.gradle/caches" : (local.java_build_tool == "maven" ? "~/.m2" : null)
+  java_build_run   = local.java_build_tool == "gradle" ? "./gradlew sonarqube --info -Dsonar.host.url=$${{ secrets.SONAR_HOST_URL }} -Dsonar.login=$${{ secrets.SONAR_TOKEN }}" : (local.java_build_tool == "maven" ? "mvn -B verify sonar:sonar -Dsonar.projectKey=redemption-service -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Denv.SHA=$${GITHUB_SHA::7} -Denv.TO=$NONPROD_CONTAINER_IMAGE" : null)
+  github_cache_hash =  local.java_build_tool == "gradle" ? "$${{ hashFiles('**/*.gradle') }}" : (local.java_build_tool == "maven" ? "$${{ hashFiles('**/pom.xml') }}" : null)
+  java_permissions = local.java_build_tool == "gradle" ? "chmod +x ./gradlew" : "echo No Maven file permission changes needed"
+}
+
 # Write Github secrets to Java repos
 /* NOT FUNCTIONAL
 resource "github_actions_organization_secret" "sonar_token" {
@@ -10,14 +33,16 @@ resource "github_actions_organization_secret" "sonar_token" {
 
 # This works but we should be able to use an organizational secret instead. It will reduce the amount of resources being managed.
 resource "github_actions_secret" "sonar_token" {
-  repository  = var.repo
+  for_each = { for sonar_repos in local.sonar_repos : sonar_repos => sonar_repos }
+  repository  = each.value
   secret_name = "SONAR_TOKEN"
   # Optionally use 'ecrypted_value' instead
   plaintext_value = var.sonar_token
 }
 
 resource "github_actions_secret" "sonar_host_url" {
-  repository  = var.repo
+  for_each = { for sonar_repos in local.sonar_repos : sonar_repos => sonar_repos }
+  repository  = each.value
   secret_name = "SONAR_HOST_URL"
   # Optionally use 'ecrypted_value' instead
   plaintext_value = var.sonar_host_url
@@ -26,9 +51,10 @@ resource "github_actions_secret" "sonar_host_url" {
 #----------
 # Create, commit and open PR to merge on default branch
 resource "github_branch" "sonar_branch" {
+  for_each = { for sonar_repos in local.sonar_repos : sonar_repos => sonar_repos }
   branch     = var.sonar_branch
-  repository = var.repo
-  source_branch = var.default_branch
+  repository = each.value
+  source_branch = data.github_repository.sonar_repos[each.value].default_branch
   lifecycle {
     ignore_changes = [
     etag,
@@ -37,8 +63,9 @@ resource "github_branch" "sonar_branch" {
 }
 
 resource "github_repository_file" "sonar_properties" {
-  repository = var.repo
-  branch     = github_branch.sonar_branch.branch
+  for_each = { for sonar_repos in local.sonar_repos : sonar_repos => sonar_repos }
+  repository = each.value
+  branch     = github_branch.sonar_branch[each.value].branch
   file       = "sonar-project.properties"
   content = templatefile("${path.module}/sonar-properties.template", {
     project_name = var.repo,
@@ -55,13 +82,14 @@ resource "github_repository_file" "sonar_properties" {
 }
 
 resource "github_repository_file" "sonar_action" {
-  repository          = var.repo
-  branch              = github_branch.sonar_branch.branch
+  for_each = { for sonar_repos in local.sonar_repos : sonar_repos => sonar_repos }
+  repository          = each.value
+  branch              = github_branch.sonar_branch[each.value].branch
   file                = ".github/workflows/${var.action_file}"
   content = templatefile(var.action_file, {
-    default_branch        = var.default_branch,
-    github_hash_files     = var.github_hash_files,
-    github_runner_os      = var.github_runner_os,
+    default_branch        = data.github_repository.sonar_repos[each.value].default_branch
+    github_cache_hash     = local.github_cache_hash
+    github_runner_os      = "$${{ runner.os }}" 
     github_token          = "$${{ secrets.GITHUB_TOKEN }}"
     java_build_cache_path = local.java_build_cache_path
     java_build_run        = local.java_build_run
@@ -80,18 +108,11 @@ resource "github_repository_file" "sonar_action" {
 #  }
 }
 
-# There is currently a cyclical dep. problem when determining if the files have changes
-locals {
-  java_build_tool = lower(var.java_build_tool)
-  java_build_cache_path = local.java_build_tool == "gradle" ? "~/.gradle/caches" : (local.java_build_tool == "maven" ? "~/.m2" : null)
-  java_build_run   = local.java_build_tool == "gradle" ? "./gradlew sonarqube --stacktrace -Dsonar.host.url=$${{ secrets.SONAR_HOST_URL }} -Dsonar.login=$${{ secrets.SONAR_TOKEN }}" : (local.java_build_tool == "maven" ? "mvn -B verify sonar:sonar -Dsonar.projectKey=redemption-service -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Denv.SHA=$${GITHUB_SHA::7} -Denv.TO=$NONPROD_CONTAINER_IMAGE" : null)
-  java_permissions = local.java_build_tool == "gradle" ? "chmod +x ./gradlew" : "echo No Maven file permission changes needed" 
-}
-
 resource "github_repository_pull_request" "sonar_pr" {
-  base_repository = var.repo
-  base_ref        = var.default_branch 
-  head_ref        = github_branch.sonar_branch.branch
+  for_each = { for sonar_repos in local.sonar_repos : sonar_repos => sonar_repos }
+  base_repository = each.value
+  base_ref        = data.github_repository.sonar_repos[each.value].default_branch
+  head_ref        = github_branch.sonar_branch[each.value].branch
   title           = "Sonarqube Static Code Analysis Implementation"
   body            = "This PR was generated by Terraform to enable Sonarqube static code analysis on selected repos."
 

@@ -28,7 +28,7 @@ jobs:
         uses: actions/cache@937d24475381cd9c75ae6db12cb4e79714b926ed
         with:
           path: ${java_build_cache_path}
-          key: ${github_runner_os}-${java_build_tool}-${github_hash_files}
+          key: ${github_runner_os}-${java_build_tool}-${github_cache_hash}
           restore-keys: ${github_runner_os}-${java_build_tool}
       - name: Update needed file permissions
         run: ${java_permissions}

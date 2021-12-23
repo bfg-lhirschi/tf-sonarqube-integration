@@ -33,16 +33,6 @@ variable "sonar_host_url" {
   default     = "https://quality-staging.aristocrat.com/" 
 }
 
-variable "github_runner_os" {
-  description = "The OS of the Github Runner the action is running on" 
-  default     = "$${{ runner.os }}"
-}
-
-variable "github_hash_files" {
-  description = "Github files that the action will hash"
-  default     = ""
-}
-
 variable "java_build_tool" {
   description = "The build tool used to generate Java artifacts"
   default = ""
