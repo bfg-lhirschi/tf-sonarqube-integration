@@ -1,13 +1,11 @@
-/*
-locals {
-  gradle_repos    = data.github_repositories.gradle_repos.names
-  gradle_repo_ids = data.github_repository.gradle_repos[*]
-  maven_repos     = data.github_repositories.maven_repos.names
-  maven_repo_ids  = data.github_repository.maven_repos[*]
-}
-*/
+# Calling modules to deploy SonarQube as Github Action.
+# The 'github_query' argument should match the syntax defined in the following document:
+# https://docs.github.com/en/search-github/searching-on-github/searching-for-repositories
 
+# Apply the Terraform run after merging changes into the 'main' branch of this repo.
+# https://app.terraform.io/app/bfg/workspaces/gis_sonarqube_github/runs
 #---------
+
 # Implement SonarQube on repos based on their Java build tools
 module "gradle_repos" {
   source          = "./tf-modules/sonarqube"
@@ -17,7 +15,6 @@ module "gradle_repos" {
   github_query    = "org:bigfishgames magento language:Java topic:gradle archived:false"
 }
 
-#Functional but not in the current scope
 module "maven_repos" {
   source          = "./tf-modules/sonarqube"
   java_build_tool = "maven"
