@@ -21,6 +21,21 @@ provider "github" {
   owner = "bigfishgames"
 }
 
+# Creates the Github organization secrets that contain the SonarQube token and URL
+resource "github_actions_organization_secret" "sonar_token" {
+  plaintext_value         = var.sonar_token #This value is a protected TFC var
+  secret_name             = "SONAR_TOKEN"
+  selected_repository_ids = ["327959493"]
+  visibility              = "selected"
+}
+
+resource "github_actions_organization_secret" "sonar_host_url" {
+  plaintext_value         = var.sonar_host_url #This value is a protected TFC var
+  secret_name             = "SONAR_HOST_URL"
+  selected_repository_ids = ["327959493"]
+  visibility              = "selected"
+}
+
 #----------
 # Variables
 variable "sonar_token" {

@@ -1,22 +1,21 @@
+name: SonarScanner
 on:
-  # Trigger analysis when pushing to the default branch or when creating pull requests. 
   push:
     branches:
       ${default_branch} 
   pull_request:
-      types: [opened, synchronize, reopened]
-
-name: Main Workflow
+    types: [opened, synchronize, reopened]
 jobs:
-  sonarqube:
+  build:
+    name: SonarQube
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
       with:
-        # Disabling shallow clone is recommended for improving relevancy of reporting
-        fetch-depth: 0
+        fetch-depth: 0 #Disable shallow clones for better analysis relevancy
     - name: SonarQube Scan Generic
       uses: sonarsource/sonarqube-scan-action@069e3332cbefb8659c02d77b21a04719d3ef7c9b
       env:
+        GITHUB_TOKEN: ${github_token}
         SONAR_TOKEN: ${sonar_token}
         SONAR_HOST_URL: ${sonar_host_url}
