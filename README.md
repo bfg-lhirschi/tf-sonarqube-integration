@@ -95,6 +95,12 @@ Example: `terraform state rm 'module.gradle_repos.github_repository_pull_request
   ```
 
 # To Do
+- [ ] Deal with this warning after updating the Github provider version:
+```
+Warning: Additional provider information from registry
+The remote registry returned warnings for registry.terraform.io/hashicorp/github:
+- For users on Terraform 0.13 or greater, this provider has moved to integrations/github. Please update your source in required_providers.
+```
 - [ ] The Github org secrets are currently limited to the repos this is developed against and can be made all available repos by removing arguments from the resource in `main.tf`
 - [ ] Change Github secret TF resources to use encrypted values for additional protection.
 - [ ] Change Github service account Personal Access Token to expire at a set interval and schedule rotation.  

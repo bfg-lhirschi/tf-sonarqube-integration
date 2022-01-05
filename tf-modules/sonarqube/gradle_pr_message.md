@@ -14,7 +14,7 @@ This PR contains commits for 2 files that are needed by SonarQube-
   - SONAR_HOST_URL: Contain the URL where the scanner results are published to
 
 ## Configuration Checklist
-- Ensure that the `SonarScanner for ${title(java_build_tool)}` is passing and the results are available in the SonarQube Enterprise project that is created.  
+- Ensure that the `SonarScanner for ${java_build_tool}` is passing and the results are available in the SonarQube Enterprise project that is created.  
 https://quality-staging.aristocrat.com/projects
 - If the above check is failing, additional `build.gradle` configuration may need to be committed to this branch before merging this PR.
 ```

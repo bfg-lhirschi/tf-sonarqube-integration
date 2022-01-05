@@ -97,7 +97,10 @@ resource "github_repository_pull_request" "sonar_pr" {
   base_ref        = data.github_repository.github_repos[each.value].default_branch
   head_ref        = github_branch.sonar_branch[each.value].branch
   title           = "Sonarqube Static Code Analysis Implementation"
-  body            = file("${path.module}/${local.github_pr_message}")
+  body            = templatefile("${path.module}/${local.github_pr_message}", {
+    github_action_file = var.action_file
+    java_build_tool    = local.java_build_tool
+  })
 
   # The following files must be created before the PR is created
   depends_on = [
@@ -107,7 +110,7 @@ resource "github_repository_pull_request" "sonar_pr" {
 
   lifecycle {
     ignore_changes = [
-      body, #Changes if the PR message is ever updated
+      #body, #Changes if the PR message is ever updated
       head_sha,
       state,      #Changes to 'merged' when PR is merged
       updated_at, #Changes if addional commits, etc are made.
