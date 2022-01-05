@@ -7,11 +7,11 @@ Access to Sonarqube Enterprise is granted by Okta. Check if you have the applica
 
 ## Changes
 This PR contains commits for 2 files that are needed by SonarQube-
-* sonar.properties: Contains configuration info for the SonarQube Scanner
-* ${github_action_file}: Contains the Github Action to configure and run the Sonar Scanner
-* Github Secrets
-  * SONAR_TOKEN: Allows Sonar Scanner to connect to SunarQube Enterprise
-  * SONAR_HOST_URL: Contain the URL where the scanner results are published to
+- sonar.properties: Contains configuration info for the SonarQube Scanner
+- ${github_action_file}: Contains the Github Action to configure and run the Sonar Scanner
+- Github Secrets
+  - SONAR_TOKEN: Allows Sonar Scanner to connect to SunarQube Enterprise
+  - SONAR_HOST_URL: Contain the URL where the scanner results are published to
 
 ## Configuration Checklist
 - Ensure that the `SonarScanner for ${title(java_build_tool)}` is passing and the results are available in the SonarQube Enterprise project that is created.  
@@ -20,6 +20,12 @@ https://quality-staging.aristocrat.com/projects
 ```
 plugins {
     id "org.sonarqube" version "3.0"
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectName', '<REPO_NAME>'
+    }
 }
 
 dependencies {
@@ -33,4 +39,6 @@ Examples are: Changing the default branch in the UI
 
 ## Contact
 For additional info on implementing SonarQube code analysis on this repo contact  
-__(GIS EMAIL AND SLACK CHANNEL)__
+For additional info on implementing SonarQube on this repo contact:
+- Cyber Security <CyberSecurity@Aristocrat.com>
+- Sandeep Kodi <Sandeep.Kodi@aristocrat.com>

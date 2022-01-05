@@ -12,7 +12,7 @@ module "gradle_repos" {
   java_build_tool = "gradle"
   action_file     = "sonar_java_action.yml"
   sonar_token     = var.sonar_token
-  github_query    = "org:bigfishgames magento language:Java topic:gradle archived:false"
+  github_query    = "magento language:Java topic:gradle "
 }
 
 module "maven_repos" {
@@ -20,7 +20,7 @@ module "maven_repos" {
   java_build_tool = "maven"
   action_file     = "sonar_java_action.yml"
   sonar_token     = var.sonar_token
-  github_query    = "org:bigfishgames language:Java topic:maven archived:false"
+  github_query    = "language:Java topic:maven "
 }
 
 # Implement SonarQube on PHP based repos.
@@ -28,7 +28,7 @@ module "php_repos" {
   source       = "./tf-modules/sonarqube"
   action_file  = "sonar_generic_action.yml"
   sonar_token  = var.sonar_token
-  github_query = "org:bigfishgames magento language:PHP language:HTML archived:false"
+  github_query = "magento language:PHP language:HTML "
 }
 
 #---------

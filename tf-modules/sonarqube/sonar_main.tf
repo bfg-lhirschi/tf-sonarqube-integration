@@ -3,7 +3,7 @@ variable "github_query" {
 }
 
 data "github_repositories" "github_repos" {
-  query = var.github_query
+  query = join(" ", [var.github_query, "org:bigfishgames", "archived:false"])
 }
 
 data "github_repository" "github_repos" {
@@ -24,6 +24,7 @@ locals {
 
 # Write Github secrets to repos
 # This works but we should be able to use an organizational secret instead. It will reduce the amount of resources being managed.
+/*
 resource "github_actions_secret" "sonar_token" {
   for_each    = local.github_repos
   repository  = each.value
@@ -39,7 +40,7 @@ resource "github_actions_secret" "sonar_host_url" {
   # Optionally use 'ecrypted_value' instead
   plaintext_value = var.sonar_host_url
 }
-
+*/
 #----------
 # Create, commit and open PR to merge on default branch
 resource "github_branch" "sonar_branch" {
@@ -65,10 +66,6 @@ resource "github_repository_file" "sonar_properties" {
   commit_author       = "BFG-TF"
   commit_email        = "bfg-tf@bigfishgames.com"
   overwrite_on_create = true
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 resource "github_repository_file" "sonar_action" {
@@ -110,9 +107,14 @@ resource "github_repository_pull_request" "sonar_pr" {
 
   lifecycle {
     ignore_changes = [
+      body, #Changes if the PR message is ever updated
       head_sha,
-      state,
-      updated_at,
+      state,      #Changes to 'merged' when PR is merged
+      updated_at, #Changes if addional commits, etc are made.
     ]
   }
+}
+
+output "sonar_repo_ids" {
+  value = local.github_repos
 }

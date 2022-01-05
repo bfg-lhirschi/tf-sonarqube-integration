@@ -7,19 +7,17 @@ New repos that match the repo query have a branch, files and a PR created when t
 The code analysis then becomes available in the Sonarqube UI when the PR containing the changes is merged into the default.  
 Currently Java repos that use Gradle and Maven build tools need to have additional code committed to the created branch before it is merged.
 
-
 ## Resources
 The Terraform workspace can be found at the following link-  
 https://app.terraform.io/app/bfg/workspaces/gis_sonarqube_github
 
-When a new repo is added the following resources will be created when Terraform is applied if it matches a Github query in the configuration:  
-- Github Secret containing the token for accessing Sonarqube
-- Github Secret containing the URL of the Sonarqube instance
-- A branch which will contain commits for the following new files:
-	- Github Action file for the main language in the repo
+When a new repo matches the Github query of a calling module, the following resources will be created when Terraform is applied:
+- A branch with commits for the following new files:
+	- Github Action file for the appropriate language of the codebase
 	- sonarqube properties file for configuring the Github Action
-- A pull request for the created branch that the owning team will need to merge into the default branch
+- A pull request to merge these changes into the default branch
 
+### Resource Changes
 Some resources that are managed by this Terraform are changed externally such as PR state going from open to merged and changes to etags, shas and ids. To accomodate this and still manage them some resources use the 'ignore changes' argument in the lifecycle block to prevent Terraform attempting to revert these changes.
 ```
   lifecycle {
@@ -49,24 +47,21 @@ last "terraform apply":
 
 ## Usage
 Terraform files and the Github Actions they deploy are located in the root of the repo.  
-These configurations call the root module and iterates over the matching repos of the data block.  
-The data block returns a list of the repos and passes it to another data block which produces a list of maps containing details about the repo.  
-The module is then called and iterates over each repo creating the resources mentioned in the previous section.  
+These module blocks in the `sonar_deployment.tf` file call the Sonarqube module and iterates over the matching repos.  
 
-## Adding to the configuration
-Add a block similar to the one below to the file `sonar_depoloyment.tf`
+### Adding to the configuration
+Add a similar block to the `sonar_depoloyment.tf` file.
 ```
 module "php_repos" {
   source       = "./tf-modules/sonarqube"
   action_file  = "sonar_generic_action.yml"
-  sonar_token  = var.sonar_token
   github_query = "org:bigfishgames magento language:PHP language:HTML archived:false"
 }
 ```
-These 4 arguments are required.  
+These 3 arguments are required.  
 To target a set of repos construct the Github query using the syntax in the following doc-  
 https://docs.github.com/en/search-github/searching-on-github/searching-for-repositories
-You must exclude archived repos from your search. They cannot be modified and will cause TF failures.
+The module prevents repos that have been archived from being added to the configuration. They cannot be modified and will cause TF failures.
 Additional Github Actions can also be added to the repo and referenced in the calling module.
 
 ## Logins, Secrets and Tokens
@@ -75,28 +70,27 @@ They are accessed by Terraform as workspace variables.
 https://app.terraform.io/app/bfg/workspaces/gis_sonarqube_github/variables
 
 ### Github service account and Personal Access Token (PAT)
-Grants access to the 'bigfishgames' Github org from Terraform Enterprise.  
+Grants access to the 'bigfishgames' Github org from Terraform Enterprise. 
 - This token belongs to the service account 'bfg-github-sonarqube'
+- The Github account is a 'bigfishgames' org owner
 - User profile: https://github.com/bfg-github-sonarqube
 - AD/Okta username: bfg-github-sonarqube@bigfishgames.com
-- Currently in Phoenix namespace on vault.bigfishgames.com
+- Currently in 'Phoenix' namespace on vault.bigfishgames.com
 - The PAT is stored as a sensitive env var in the TF workspace
 
 ### Sonarqube Token
 Grants access to Sonarqube Enterprise by the Github Action performing the code scan
 - This token is stored as a sensitive var in the TF workspace
-- Written to Github repos as a Github Secret
+- Created in `main.tf` as a Github organization secret
 
-## [WIP] Automating Terraform workspace runs
-The Terraform workspace can regularly deploy to new repos as they are created by automatically triggering runs via the API with Google Cloud Scheduler.  
-If this 'cron as a service' is used the Terraform workspace should be configured to automatically apply following a successful plan. Otherwise human intervention is needed to click the 'apply' button for the run.
-
-# Issues  
+# Issues
 - Currently Java repos that use Gradle and Maven build tools need to have additional code committed to the created branch before it is merged.
-- [ ] A Github Action is needed to automatically apply topics to Java repo using Gradle and Maven.
+- A Github Action is needed to automatically apply topics to Java repo using Gradle and Maven.
+- Terraform can have problems with branch and PR resources after they are merged or deleted if changes are detected. They may need to be removed from the TF state if errors are encountered in the TF workspace. Adding arguments to the `ignore_chages` list of the `lifecycle` block may prevent occurrances of this.
+Example: `terraform state rm 'module.gradle_repos.github_repository_pull_request.sonar_pr["catalog-sync-service"]'`
 
 # To Do
-- [ ] Change Github secret on repos to a 'bigfishgames' org secret.
+- [ ] The Github org secrets are currently limited to the repos this is developed against and can be made all available repos by removing arguments from the resource in `main.tf`
 - [ ] Change Github secret TF resources to use encrypted values for additional protection.
 - [ ] Change Github service account Personal Access Token to expire at a set interval and schedule rotation.  
      This token currently does not expire.
