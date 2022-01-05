@@ -88,6 +88,11 @@ Grants access to Sonarqube Enterprise by the Github Action performing the code s
 - A Github Action is needed to automatically apply topics to Java repo using Gradle and Maven.
 - Terraform can have problems with branch and PR resources after they are merged or deleted if changes are detected. They may need to be removed from the TF state if errors are encountered in the TF workspace. Adding arguments to the `ignore_chages` list of the `lifecycle` block may prevent occurrances of this.
 Example: `terraform state rm 'module.gradle_repos.github_repository_pull_request.sonar_pr["catalog-sync-service"]'`
+- Possible bug in Github org secret resource:
+  ```
+  Error: Provider produced inconsistent result after apply
+  When applying changes to github_actions_organization_secret.sonar_token, provider "provider[\"registry.terraform.io/hashicorp/github\"]" produced an unexpected new value: Root resource was present, but now absent. This is a bug in the provider, which should be reported in the provider's own issue tracker.
+  ```
 
 # To Do
 - [ ] The Github org secrets are currently limited to the repos this is developed against and can be made all available repos by removing arguments from the resource in `main.tf`
