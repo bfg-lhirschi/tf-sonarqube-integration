@@ -64,7 +64,7 @@ module "php_repos" {
 These 3 arguments are required.  
 To target a set of repos construct the Github query using the syntax in the following doc-  
 https://docs.github.com/en/search-github/searching-on-github/searching-for-repositories
-The config appends `org:bigfishgames archived:false` to the query for the following reasons:
+The module appends `org:bigfishgames archived:false` to the query for the following reasons:
 - The org token can only manage repos in the 'bigfishgames.com' org.
 - Archived repos should not have changes made to them and are considered to not be in use.
 

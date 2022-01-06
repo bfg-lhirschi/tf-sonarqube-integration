@@ -25,7 +25,6 @@ provider "github" {
 resource "github_actions_organization_secret" "sonar_token" {
   plaintext_value = var.sonar_token #This value is a protected TFC var
   secret_name     = "SONAR_TOKEN"
-  #[data.github_repository.repo.repo_id]
   selected_repository_ids = [ #Remove for access by all org repos
     "327959493",
     "331419342",

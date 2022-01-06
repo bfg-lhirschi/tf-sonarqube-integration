@@ -2,7 +2,7 @@ name: SonarScanner
 on:
   push:
     branches:
-      ${default_branch} 
+      ${github_default_branch} 
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
