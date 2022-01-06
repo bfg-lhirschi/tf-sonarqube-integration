@@ -17,6 +17,9 @@ When a new repo matches the Github query of a calling module, the following reso
 	- sonarqube properties file for configuring the Github Action
 - A pull request to merge these changes into the default branch
 
+## Templating
+INFO ON TERRAFORM TEMPLATING HERE
+
 ### Resource Changes
 Some resources that are managed by this Terraform are changed externally such as PR state going from open to merged and changes to etags, shas and ids. To accomodate this and still manage them some resources use the 'ignore changes' argument in the lifecycle block to prevent Terraform attempting to revert these changes.
 ```

@@ -12,6 +12,7 @@ data "github_repository" "github_repos" {
 }
 
 locals {
+  additional_configuration = var.action_file == "sonar_generic_action.yml" ? var.generic_requirements : (local.java_build_tool == "gradle" ? var.gradle_requirements : var.maven_requirements)
   github_cache_hash     = local.java_build_tool == "gradle" ? "$${{ hashFiles('**/*.gradle') }}" : (local.java_build_tool == "maven" ? "$${{ hashFiles('**/pom.xml') }}" : null)
   github_pr_message     = var.action_file == "sonar_generic_action.yml" ? "generic_pr_message.md" : "${local.java_build_tool}_pr_message.md"
   github_repo_ids       = data.github_repository.github_repos[*]
@@ -97,12 +98,14 @@ resource "github_repository_pull_request" "sonar_pr" {
   base_ref        = data.github_repository.github_repos[each.value].default_branch
   head_ref        = github_branch.sonar_branch[each.value].branch
   title           = "Sonarqube Static Code Analysis Implementation"
-  body            = templatefile("${path.module}/${local.github_pr_message}", {
+  body            = replace(templatefile("${path.module}/sonar_pr_message.md", {
+    additional_configuration = local.additional_configuration
     github_action_file = var.action_file
+    github_repo_name   = each.value
     java_build_tool    = local.java_build_tool
-  })
+  }), "$${github_repo_name}", each.value)
 
-  # The following files must be created before the PR is created
+  # The following files must be created before the PR
   depends_on = [
     github_repository_file.sonar_properties,
     github_repository_file.sonar_action,
@@ -112,7 +115,7 @@ resource "github_repository_pull_request" "sonar_pr" {
     ignore_changes = [
       #body, #Changes if the PR message is ever updated
       head_sha,
-      state,      #Changes to 'merged' when PR is merged
+      state,      #Changes when PR is merged or closed
       updated_at, #Changes if addional commits, etc are made.
     ]
   }
