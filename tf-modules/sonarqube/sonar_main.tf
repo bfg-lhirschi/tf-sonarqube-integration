@@ -64,8 +64,8 @@ resource "github_repository_file" "sonar_properties" {
     project_key  = each.value,
   })
   commit_message      = "Create sonarqube.properties file, managed by Terraform"
-  commit_author       = "BFG-TF"
-  commit_email        = "bfg-tf@bigfishgames.com"
+  commit_author       = "bfg-github-sonarqube"
+  commit_email        = "bfg-github-sonarqube@bigfishgames.com"
   overwrite_on_create = true
 }
 
@@ -87,8 +87,8 @@ resource "github_repository_file" "sonar_action" {
     sonar_token           = "$${{ secrets.SONAR_TOKEN }}"
   })
   commit_message      = "Create sonarqube GH Action file, managed by Terraform"
-  commit_author       = "bfg-tf"
-  commit_email        = "bfg-tf@bigfishgames.com"
+  commit_author       = "bfg-github-sonarqube"
+  commit_email        = "bfg-github-sonarqube@bigfishgames.com"
   overwrite_on_create = true
 }
 

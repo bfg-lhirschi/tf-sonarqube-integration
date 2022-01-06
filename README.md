@@ -17,11 +17,11 @@ When a new repo matches the Github query of a calling module, the following reso
 	- sonarqube properties file for configuring the Github Action
 - A pull request to merge these changes into the default branch
 
-## Templating
-INFO ON TERRAFORM TEMPLATING HERE
+### Resource Templating
+The body of the PR and the Java Github Actions are generated using Terraform template files.
 
 ### Resource Changes
-Some resources that are managed by this Terraform are changed externally such as PR state going from open to merged and changes to etags, shas and ids. To accomodate this and still manage them some resources use the 'ignore changes' argument in the lifecycle block to prevent Terraform attempting to revert these changes.
+Some resources that are managed by this Terraform are changed externally; such as PR state changing from open to merged or closed, changes to etags, shas and ids. To accomodate this and still manage the resources, the 'ignore changes' argument in the lifecycle block is used to prevent Terraform from reverting them to their previous state.
 ```
   lifecycle {
     ignore_changes = [
@@ -32,7 +32,7 @@ Some resources that are managed by this Terraform are changed externally such as
   }
   ```
 
-You will also see these preceeding the TF plan changes like so:
+You may also see these preceeding any changes when running `terraform plan`
 ```
 Note: Objects have changed outside of Terraform
 
@@ -50,7 +50,7 @@ last "terraform apply":
 
 ## Usage
 Terraform files and the Github Actions they deploy are located in the root of the repo.  
-These module blocks in the `sonar_deployment.tf` file call the Sonarqube module and iterates over the matching repos.  
+The module blocks in the `sonar_deployment.tf` file call the Sonarqube module and iterates over the matching repos.  
 
 ### Adding to the configuration
 Add a similar block to the `sonar_depoloyment.tf` file.
@@ -64,8 +64,9 @@ module "php_repos" {
 These 3 arguments are required.  
 To target a set of repos construct the Github query using the syntax in the following doc-  
 https://docs.github.com/en/search-github/searching-on-github/searching-for-repositories
-The module prevents repos that have been archived from being added to the configuration. They cannot be modified and will cause TF failures.
-Additional Github Actions can also be added to the repo and referenced in the calling module.
+The config appends `org:bigfishgames archived:false` to the query for the following reasons:
+- The org token can only manage repos in the 'bigfishgames.com' org.
+- Archived repos should not have changes made to them and are considered to not be in use.
 
 ## Logins, Secrets and Tokens
 The following credentials provide the needed access to resources.
@@ -88,16 +89,14 @@ Grants access to Sonarqube Enterprise by the Github Action performing the code s
 
 # Issues
 - Currently Java repos that use Gradle and Maven build tools need to have additional code committed to the created branch before it is merged.
-- A Github Action is needed to automatically apply topics to Java repo using Gradle and Maven.
-- Terraform can have problems with branch and PR resources after they are merged or deleted if changes are detected. They may need to be removed from the TF state if errors are encountered in the TF workspace. Adding arguments to the `ignore_chages` list of the `lifecycle` block may prevent occurrances of this.
+- A Github Action is needed to automatically apply topics to Java repo using Gradle and Maven. Otherwise the topics need to be manually added.
+- Terraform can have problems with branch and PR resources after they are merged or deleted if changes are detected.  
+They may need to be removed from the TF state if errors are encountered in the TF workspace.  
+Adding arguments to the `ignore_chages` list of the `lifecycle` block may prevent occurrances of this.
 Example: `terraform state rm 'module.gradle_repos.github_repository_pull_request.sonar_pr["catalog-sync-service"]'`
-- Possible bug in Github org secret resource:
-  ```
-  Error: Provider produced inconsistent result after apply
-  When applying changes to github_actions_organization_secret.sonar_token, provider "provider[\"registry.terraform.io/hashicorp/github\"]" produced an unexpected new value: Root resource was present, but now absent. This is a bug in the provider, which should be reported in the provider's own issue tracker.
-  ```
 
 # To Do
+- [ ] Investigate unintended use of these Github Org Secrets, security issue?
 - [ ] Deal with this warning after updating the Github provider version:
 ```
 Warning: Additional provider information from registry
@@ -111,3 +110,7 @@ The remote registry returned warnings for registry.terraform.io/hashicorp/github
 - [ ] Pass all credentials with project.
 - [ ] Configure Terraform workspace notifications; either Slack channel or email.
   https://app.terraform.io/app/bfg/workspaces/gis_sonarqube_github/settings/notifications
+
+# Help
+This configuration was written by BFG Core Platform Team member denna.solon@bigfishgames.com.
+You may contact me for help as needed.

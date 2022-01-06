@@ -8,7 +8,7 @@ variable "default_branch" {
 
 variable "sonar_branch" {
   description = "Github branch for commits and PR"
-  default     = "sonarqube-implementation-poc"
+  default     = "github-sonarqube-implementation"
 }
 
 variable "repo" {
@@ -39,6 +39,7 @@ variable "java_build_tool" {
 }
 
 # Variables for PR message templating
+# Only add details that are implementation specific.
 variable "generic_requirements" {
   description = "Any additional configuration the generic action can't implement on the codebase"
   default     = "If the above check is failing additional configuration may be need to be committed to this branch before merging this PR."
