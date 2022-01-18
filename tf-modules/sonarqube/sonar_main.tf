@@ -42,6 +42,9 @@ resource "github_repository_file" "sonar_properties" {
     project_key  = each.value,
   })
   overwrite_on_create = true
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "github_repository_file" "sonar_action" {
@@ -64,6 +67,9 @@ resource "github_repository_file" "sonar_action" {
     sonar_host_url        = "$${{ secrets.SONAR_HOST_URL }}"
     sonar_token           = "$${{ secrets.SONAR_TOKEN }}"
   })
+  lifecycle {
+    ignore_changes = all
+  }
   overwrite_on_create = true
 }
 

@@ -96,7 +96,6 @@ Adding arguments to the `ignore_chages` list of the `lifecycle` block may preven
 Example: `terraform state rm 'module.gradle_repos.github_repository_pull_request.sonar_pr["catalog-sync-service"]'`
 
 # To Do
-- [ ] Investigate unintended use of these Github Org Secrets, security issue?
 - [ ] Deal with this warning after updating the Github provider version:
 ```
 Warning: Additional provider information from registry
