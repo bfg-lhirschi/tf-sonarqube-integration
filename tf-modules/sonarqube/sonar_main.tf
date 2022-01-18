@@ -25,7 +25,7 @@ resource "github_branch" "sonar_branch" {
   repository    = each.value
   source_branch = data.github_repository.github_repos[each.value].default_branch
   lifecycle {
-    ignore_changes = [etag]
+    ignore_changes = all
   }
 }
 
