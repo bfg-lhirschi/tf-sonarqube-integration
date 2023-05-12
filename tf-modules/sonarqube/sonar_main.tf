@@ -1,42 +1,44 @@
-data "github_repositories" "github_repos" {
-  query = join(" ", [var.github_query, "org:bigfishgames", "archived:false"])
-}
+# data "github_repositories" "github_repos" {
+#   query = join(" ", [var.github_query, "org:bigfishgames", "archived:false"])
+# }
 
-data "github_repository" "github_repos" {
-  for_each  = toset(data.github_repositories.github_repos.names)
-  full_name = "bigfishgames/${each.value}"
-}
+# data "github_repository" "github_repos" {
+#   for_each  = toset(data.github_repositories.github_repos.names)
+#   full_name = "bigfishgames/${each.value}"
+# }
 
-locals {
-  github_cache_hash       = local.java_build_tool == "gradle" ? "$${{ hashFiles('**/*.gradle') }}" : (local.java_build_tool == "maven" ? "$${{ hashFiles('**/pom.xml') }}" : null)
-  github_repos            = { for github_repos in data.github_repositories.github_repos.names : github_repos => github_repos }
-  java_build_cache_path   = local.java_build_tool == "gradle" ? "~/.gradle/caches" : (local.java_build_tool == "maven" ? "~/.m2" : null)
-  java_build_run          = local.java_build_tool == "gradle" ? "./gradlew sonarqube --info -Dsonar.host.url=$${{ secrets.SONAR_HOST_URL }} -Dsonar.login=$${{ secrets.SONAR_TOKEN }}" : (local.java_build_tool == "maven" ? "mvn -B verify sonar:sonar -Dsonar.projectKey=redemption-service -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Denv.SHA=$${GITHUB_SHA::7} -Denv.TO=$NONPROD_CONTAINER_IMAGE" : null)
-  java_build_tool         = lower(var.java_build_tool)
-  java_permissions        = local.java_build_tool == "gradle" ? "chmod +x ./gradlew" : "echo No Maven file permission changes needed"
-  sonar_additional_config = var.github_action_file == "sonar_generic_action.yml" ? var.sonar_requirements_generic : (local.java_build_tool == "gradle" ? var.sonar_requirements_gradle : var.sonar_requirements_maven)
-}
+# locals {
+#   github_cache_hash       = local.java_build_tool == "gradle" ? "$${{ hashFiles('**/*.gradle') }}" : (local.java_build_tool == "maven" ? "$${{ hashFiles('**/pom.xml') }}" : null)
+#   github_repos            = { for github_repos in data.github_repositories.github_repos.names : github_repos => github_repos }
+#   java_build_cache_path   = local.java_build_tool == "gradle" ? "~/.gradle/caches" : (local.java_build_tool == "maven" ? "~/.m2" : null)
+#   java_build_run          = local.java_build_tool == "gradle" ? "./gradlew sonarqube --info -Dsonar.host.url=$${{ secrets.SONAR_HOST_URL }} -Dsonar.login=$${{ secrets.SONAR_TOKEN }}" : (local.java_build_tool == "maven" ? "mvn -B verify sonar:sonar -Dsonar.projectKey=redemption-service -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Denv.SHA=$${GITHUB_SHA::7} -Denv.TO=$NONPROD_CONTAINER_IMAGE" : null)
+#   java_build_tool         = lower(var.java_build_tool)
+#   java_permissions        = local.java_build_tool == "gradle" ? "chmod +x ./gradlew" : "echo No Maven file permission changes needed"
+#   sonar_additional_config = var.github_action_file == "sonar_generic_action.yml" ? var.sonar_requirements_generic : (local.java_build_tool == "gradle" ? var.sonar_requirements_gradle : var.sonar_requirements_maven)
+# }
 
 #----------
 # Create, commit and open PR to merge on default branch
 resource "github_branch" "sonar_branch" {
-  for_each      = local.github_repos
+  # for_each      = local.github_repos
   branch        = var.sonar_branch
-  repository    = each.value
-  source_branch = data.github_repository.github_repos[each.value].default_branch
+  repository    = "levi-test02"
+  # source_branch = data.github_repository.github_repos[each.value].default_branch
+  source_branch = main
   lifecycle {
     ignore_changes = all
   }
 }
 
 resource "github_repository_file" "sonar_properties" {
-  for_each       = local.github_repos
-  repository     = each.value
-  branch         = github_branch.sonar_branch[each.value].branch
+  # for_each       = local.github_repos
+  # repository     = each.value
+  # branch         = github_branch.sonar_branch[each.value].branch
+  repository     = "levi-test15"
   file           = "sonar-project.properties"
   commit_message = "Create sonarqube.properties file, managed by Terraform"
-  commit_author  = "bfg-github-sonarqube"
-  commit_email   = "bfg-github-sonarqube@bigfishgames.com"
+  commit_author  = "bfg-lhirschi"
+  commit_email   = "levi.hirschi@bigfishgames.com"
   content        = templatefile("${path.module}/sonar-properties.template", {
     project_name = each.value,
     project_key  = each.value,
@@ -48,9 +50,11 @@ resource "github_repository_file" "sonar_properties" {
 }
 
 resource "github_repository_file" "sonar_action" {
-  for_each        = local.github_repos
-  repository      = each.value
-  branch          = github_branch.sonar_branch[each.value].branch
+  # for_each        = local.github_repos
+  # repository      = each.value
+  # branch          = github_branch.sonar_branch[each.value].branch
+  branch          = github_branch.sonar_branch
+  repository      = "levi-test02ß"
   file            = ".github/workflows/${var.github_action_file}"
   commit_message  = "Create sonarqube GH Action file, managed by Terraform"
   commit_author   = "bfg-github-sonarqube"
@@ -74,8 +78,9 @@ resource "github_repository_file" "sonar_action" {
 }
 
 resource "github_repository_pull_request" "sonar_pr" {
-  for_each        = local.github_repos
-  base_repository = each.value
+  # for_each        = local.github_repos
+  # base_repository = each.value
+  base_repository = main
   base_ref        = data.github_repository.github_repos[each.value].default_branch
   head_ref        = github_branch.sonar_branch[each.value].branch
   title           = "Sonarqube Static Code Analysis Implementation"
