@@ -26,9 +26,7 @@ resource "github_actions_organization_secret" "sonar_token" {
   plaintext_value = var.sonar_token #This value is a protected TFC var
   secret_name     = "SONAR_TOKEN"
   selected_repository_ids = [ #Remove for access by all org repos
-    "327959493",
-    "331419342",
-    "380901124",
+    "639904973",
   ]
   visibility = "selected" #Remove for access by all org repos
 }
@@ -37,9 +35,7 @@ resource "github_actions_organization_secret" "sonar_host_url" {
   plaintext_value = var.sonar_host_url #This value is a protected TFC var
   secret_name     = "SONAR_HOST_URL"
   selected_repository_ids = [ #Remove for access by all org repos
-    "327959493",
-    "331419342",
-    "380901124",
+    "639904973",
   ]
   visibility = "selected" #Remove for access by all org repos
 }
