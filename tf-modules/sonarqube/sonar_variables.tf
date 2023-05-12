@@ -33,6 +33,7 @@ variable "sonar_host_url" {
 variable "sonar_token" {
   description  = "The Sonarqube token to access the BFG enterprise instance"
   #default     = "$${{ secrets.SONAR_TOKEN }}"
+  default      = "squ_66b2b597c98ace5953f0645b9eaf5642a3ca9a22"
 }
 
 # Variables for PR message templating

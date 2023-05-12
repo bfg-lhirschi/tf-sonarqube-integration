@@ -1,14 +1,14 @@
 # Providers
 terraform {
-  required_version = "1.0.11"
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "bfg"
+  required_version = ">= 1.0.11"
+  # backend "remote" {
+  #   hostname     = "app.terraform.io"
+  #   organization = "bfg"
 
-    workspaces {
-      name = "gis_sonarqube_github"
-    }
-  }
+  #   workspaces {
+  #     name = "gis_sonarqube_github"
+  #   }
+  # }
   required_providers {
     github = {
       version = "~>4.19.0"
@@ -17,9 +17,9 @@ terraform {
 }
 
 # The TFC workspace accesses Github with a token. It's set as an env var named 'GITHUB_TOKEN'
-provider "github" {
-  owner = "bigfishgames"
-}
+# provider "github" {
+#   owner = "bigfishgames"
+# }
 
 # Creates the Github organization secrets that contain the SonarQube token and URL
 resource "github_actions_organization_secret" "sonar_token" {
@@ -42,10 +42,10 @@ resource "github_actions_organization_secret" "sonar_host_url" {
 
 #----------
 # Variables
-variable "sonar_token" {
-  sensitive = true
-}
+# variable "sonar_token" {
+#   sensitive = true
+# }
 
-variable "sonar_host_url" {
-  sensitive = true
-}
+# variable "sonar_host_url" {
+#   sensitive = true
+# }

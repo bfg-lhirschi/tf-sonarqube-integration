@@ -54,7 +54,7 @@ resource "github_repository_file" "sonar_action" {
   file            = ".github/workflows/${var.github_action_file}"
   commit_message  = "Create sonarqube GH Action file, managed by Terraform"
   commit_author   = "bfg-github-sonarqube"
-  commit_email    = "bfg-github-sonarqube@bigfishgames.com"
+  # commit_email    = "bfg-github-sonarqube@bigfishgames.com"
   content         = templatefile(var.github_action_file, {
     github_default_branch = data.github_repository.github_repos[each.value].default_branch
     github_cache_hash     = local.github_cache_hash
@@ -107,3 +107,4 @@ output "sonar_repo_ids" {
   value = local.github_repos
 }
 */
+
